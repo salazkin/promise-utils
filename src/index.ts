@@ -21,14 +21,14 @@ const tick =
 /**
  * Simple tween.
  * @param duration - Duration in milliseconds.
- * @param onUpdate - Callback with progress (0 to 1) and skip flag.
- * @param flag - Optional flag to skip the animation.
- * @returns Resolves on completion or skip.
+ * @param onUpdate - Callback with progress (0 to 1).
+ * @param signal - Optional AbortSignal to cancel the animation.
+ * @returns Resolves on completion or cancellation.
  */
 export const tween = async (
   duration: number,
-  onUpdate: (t: number, skipped?: boolean) => void,
-  flag?: { skip: boolean }
+  onUpdate: (t: number, aborted?: boolean) => void,
+  signal?: AbortSignal
 ): Promise<void> => {
   const start = performance.now();
   return new Promise<void>(resolve => {
@@ -37,7 +37,7 @@ export const tween = async (
       const elapsed = now - start;
       const t = Math.min(elapsed / duration, 1);
 
-      if (flag?.skip) {
+      if (signal?.aborted) {
         onUpdate(t, true);
         resolve();
         return;
@@ -54,7 +54,7 @@ export const tween = async (
 
     if (duration <= 0) {
       tick(() => {
-        onUpdate(1, flag?.skip);
+        onUpdate(1, signal?.aborted);
         resolve();
       });
     } else {
@@ -66,10 +66,10 @@ export const tween = async (
 /**
  * Delay using a promise.
  * @param duration - Duration in milliseconds.
- * @param flag - Optional flag to skip the delay.
- * @returns Resolves on completion or skip.
+ * @param signal - Optional AbortSignal to cancel the delay.
+ * @returns Resolves on completion or cancellation.
  */
-export const delay = async (duration: number, flag?: { skip: boolean }): Promise<void> => {
+export const delay = async (duration: number, signal?: AbortSignal): Promise<void> => {
   const start = performance.now();
   return new Promise<void>(resolve => {
     function step() {
@@ -77,7 +77,7 @@ export const delay = async (duration: number, flag?: { skip: boolean }): Promise
       const elapsed = now - start;
       const t = Math.min(elapsed / duration, 1);
 
-      if (flag?.skip) {
+      if (signal?.aborted) {
         resolve();
         return;
       }

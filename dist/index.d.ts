@@ -13,22 +13,18 @@ export declare const parallel: (arr: Array<() => Promise<any>>) => Promise<any[]
 /**
  * Simple tween.
  * @param duration - Duration in milliseconds.
- * @param onUpdate - Callback with progress (0 to 1) and skip flag.
- * @param flag - Optional flag to skip the animation.
- * @returns Resolves on completion or skip.
+ * @param onUpdate - Callback with progress (0 to 1).
+ * @param signal - Optional AbortSignal to cancel the animation.
+ * @returns Resolves on completion or cancellation.
  */
-export declare const tween: (duration: number, onUpdate: (t: number, skipped?: boolean) => void, flag?: {
-    skip: boolean;
-}) => Promise<void>;
+export declare const tween: (duration: number, onUpdate: (t: number, aborted?: boolean) => void, signal?: AbortSignal) => Promise<void>;
 /**
  * Delay using a promise.
  * @param duration - Duration in milliseconds.
- * @param flag - Optional flag to skip the delay.
- * @returns Resolves on completion or skip.
+ * @param signal - Optional AbortSignal to cancel the delay.
+ * @returns Resolves on completion or cancellation.
  */
-export declare const delay: (duration: number, flag?: {
-    skip: boolean;
-}) => Promise<void>;
+export declare const delay: (duration: number, signal?: AbortSignal) => Promise<void>;
 export type StateHandler<State extends string> = (next: (state: State) => void, exit: () => void) => Promise<void> | void;
 type StateConfig<State extends string> = {
     start: StateHandler<State>;

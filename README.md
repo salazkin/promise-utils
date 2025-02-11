@@ -29,10 +29,10 @@ const tasks = [
 ];
 
 (async () => {
-  await sequence(tasks); // Log: Task 1 done, Task 2 done, Task 3 done
+  await sequence(tasks); // Output: Task 1 done, Task 2 done, Task 3 done
   console.log("Sequence complete");
 
-  await parallel(tasks); // Log: Task 2 done, Task 3 done, Task 1 done
+  await parallel(tasks); // Output: Task 2 done, Task 3 done, Task 1 done
   console.log("Parallel complete");
 })();
 ```
@@ -41,7 +41,7 @@ const tasks = [
 
 ## Tween
 
-A simple tween that resolves as a promise. Tweens a value from `0` to `1` over a specified duration. Can be skipped using an optional flag.
+A simple tween that resolves as a promise. Tweens a value from `0` to `1` over a specified duration. Can be canceled using an AbortSignal.
 
 ### Example
 
@@ -53,23 +53,18 @@ const lerp = (start, end, t) => start + (end - start) * t;
 (async () => {
   await tween(1000, (progress) => {
     const value = lerp(0, 100, progress); // Interpolate from 0 to 100
-    console.log(`Value: ${value.toFixed(2)}`);
+    console.log(`Value: ${value}`);
   });
   console.log("Tween 1 complete");
 
-  // Example with skip
-  const flag = { skip: false };
-  setTimeout(() => {
-    flag.skip = true;
-  }, 500); // Skip after 500ms
-
+  // Example with cancellation
   await tween(
     1000,
-    (progress, skipped) => {
-      console.log(`Progress: ${progress.toFixed(2)}`);
-      if (skipped) console.log("Tween skipped");
+    (progress, aborted) => {
+      console.log(`Progress: ${progress}`);
+      if (aborted) console.log("Tween aborted");
     },
-    flag
+    AbortSignal.timeout(500) // Skip after 500ms
   );
   console.log("Tween 2 complete");
 })();

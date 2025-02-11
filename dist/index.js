@@ -16,18 +16,18 @@ const tick = typeof window !== "undefined" && typeof window.requestAnimationFram
 /**
  * Simple tween.
  * @param duration - Duration in milliseconds.
- * @param onUpdate - Callback with progress (0 to 1) and skip flag.
- * @param flag - Optional flag to skip the animation.
- * @returns Resolves on completion or skip.
+ * @param onUpdate - Callback with progress (0 to 1).
+ * @param signal - Optional AbortSignal to cancel the animation.
+ * @returns Resolves on completion or cancellation.
  */
-const tween = async (duration, onUpdate, flag) => {
+const tween = async (duration, onUpdate, signal) => {
     const start = performance.now();
     return new Promise(resolve => {
         function step() {
             const now = performance.now();
             const elapsed = now - start;
             const t = Math.min(elapsed / duration, 1);
-            if (flag?.skip) {
+            if (signal?.aborted) {
                 onUpdate(t, true);
                 resolve();
                 return;
@@ -42,7 +42,7 @@ const tween = async (duration, onUpdate, flag) => {
         }
         if (duration <= 0) {
             tick(() => {
-                onUpdate(1, flag?.skip);
+                onUpdate(1, signal?.aborted);
                 resolve();
             });
         }
@@ -54,17 +54,17 @@ const tween = async (duration, onUpdate, flag) => {
 /**
  * Delay using a promise.
  * @param duration - Duration in milliseconds.
- * @param flag - Optional flag to skip the delay.
- * @returns Resolves on completion or skip.
+ * @param signal - Optional AbortSignal to cancel the delay.
+ * @returns Resolves on completion or cancellation.
  */
-const delay = async (duration, flag) => {
+const delay = async (duration, signal) => {
     const start = performance.now();
     return new Promise(resolve => {
         function step() {
             const now = performance.now();
             const elapsed = now - start;
             const t = Math.min(elapsed / duration, 1);
-            if (flag?.skip) {
+            if (signal?.aborted) {
                 resolve();
                 return;
             }
